@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mavurapu Aruna | AI & ML Engineer Portfolio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+    :root {
+      --bg-dark: #07090e;
+      --bg-card: rgba(15, 23, 42, 0.65);
+      --accent-cyan: #06b6d4;
+      --accent-purple: #8b5cf6;
+      --accent-pink: #ec4899;
+      --border-glow: rgba(6, 182, 212, 0.3);
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: #f8fafc;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* BACKGROUND CANVAS */
+    #ambient-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* GLASSMORPHISM & UTILS */
+    .glass {
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .glass:hover {
+      border-color: rgba(6, 182, 212, 0.4);
+      box-shadow: 0 0 25px rgba(6, 182, 212, 0.15);
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #38bdf8, #8b5cf6, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .gradient-border {
+      position: relative;
+    }
+
+    .gradient-border::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 22px;
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.5), rgba(139, 92, 246, 0.5));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    /* GLOW EFFECTS */
+    .glow-cyan {
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.35);
+    }
+    
+    .glow-purple {
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.35);
+    }
+
+    /* SKILL CHIP */
+    .skill-chip {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+
+    .skill-chip:hover, .skill-chip.active {
+      background: rgba(6, 182, 212, 0.15);
+      border-color: #06b6d4;
+      color: #38bdf8;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(6, 182, 212, 0.2);
+    }
+
+    /* PROJECT CARD HIGHLIGHTING */
+    .project-card {
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .project-card.dimmed {
+      opacity: 0.25;
+      filter: grayscale(0.6);
+      transform: scale(0.97);
+    }
+
+    .project-card.highlighted {
+      border-color: #06b6d4;
+      box-shadow: 0 0 30px rgba(6, 182, 212, 0.3);
+      transform: translateY(-6px);
+    }
+
+    /* MODAL */
+    .modal-backdrop {
+      background: rgba(3, 7, 18, 0.85);
+      backdrop-filter: blur(12px);
+    }
+
+    /* CUSTOM SCROLLBAR */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #07090e;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-cyan);
+    }
+  </style>
+</head>
+<body class="selection:bg-cyan-500 selection:text-black">
+
+  <!-- BACKGROUND ANIMATED CANVAS -->
+  <canvas id="ambient-canvas"></canvas>
+
+  <!-- NAVBAR -->
+  <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-4 px-6 md:px-12" id="navbar">
+    <div class="max-w-7xl mx-auto flex justify-between items-center glass px-6 py-3">
+      <a href="#" class="text-xl font-extrabold tracking-tight flex items-center gap-2">
+        <span class="text-cyan-400 font-mono">&lt;MA/&gt;</span>
+        <span class="gradient-text hidden sm:inline">Mavurapu Aruna</span>
+      </a>
+
+      <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+        <a href="#about" class="hover:text-cyan-400 transition-colors">About</a>
+        <a href="#skills" class="hover:text-cyan-400 transition-colors">Skills</a>
+        <a href="#projects" class="hover:text-cyan-400 transition-colors">Projects</a>
+        <a href="#education" class="hover:text-cyan-400 transition-colors">Education</a>
+        <a href="#certifications" class="hover:text-cyan-400 transition-colors">Certifications</a>
+      </nav>
+
+      <div class="flex items-center gap-3">
+        <a href="mailto:arunamavurapu2033@gmail.com" class="px-4 py-2 text-xs md:text-sm font-semibold rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 text-white shadow-lg hover:shadow-cyan-500/30 transition-all transform hover:-translate-y-0.5">
+          <i class="fa-regular me-1.5"></i> Get in Touch
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-6 md:px-12 pt-32 space-y-28">
+
+    <!-- HERO SECTION -->
+    <section id="about" class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center min-h-[75vh]">
+      <div class="lg:col-span-7 space-y-6">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-950/60 border border-cyan-500/30 text-cyan-400 text-xs font-mono">
+          <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+          AI & Machine Learning Undergraduate
+        </div>
+
+        <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight">
+          Hi, I'm <br>
+          <span class="gradient-text">Mavurapu Aruna</span>
+        </h1>
+
+        <p class="text-slate-400 text-base sm:text-lg leading-relaxed max-w-2xl">
+          Passionate AI & ML engineer specializing in building data-driven systems, revenue optimization algorithms, and deep learning models for image restoration. Skilled in turning raw data into actionable intelligence.
+        </p>
+
+        <!-- QUICK LINKS -->
+        <div class="flex flex-wrap gap-4 pt-2">
+          <a href="mailto:arunamavurapu2033@gmail.com" class="glass px-4 py-2.5 rounded-xl flex items-center gap-2 text-sm text-slate-200 hover:text-cyan-400 group">
+            <i class="fa-solid fa-envelope text-cyan-400 group-hover:scale-110 transition-transform"></i>
+            <span>arunamavurapu2033@gmail.com</span>
+          </a>
+          <a href="tel:+917013140855" class="glass px-4 py-2.5 rounded-xl flex items-center gap-2 text-sm text-slate-200 hover:text-cyan-400 group">
+            <i class="fa-solid fa-phone text-cyan-400 group-hover:scale-110 transition-transform"></i>
+            <span>+91 7013140855</span>
+          </a>
+          <a href="https://linkedin.com/in/aruna-mavurapu" target="_blank" class="glass px-4 py-2.5 rounded-xl flex items-center gap-2 text-sm text-slate-200 hover:text-cyan-400 group">
+            <i class="fa-brands fa-linkedin text-cyan-400 group-hover:scale-110 transition-transform"></i>
+            <span>LinkedIn</span>
+            <i class="fa-solid fa-arrow-up-right-from-square text-xs opacity-60"></i>
+          </a>
+          <a href="https://github.com/aruna2006" target="_blank" class="glass px-4 py-2.5 rounded-xl flex items-center gap-2 text-sm text-slate-200 hover:text-cyan-400 group">
+            <i class="fa-brands fa-github text-cyan-400 group-hover:scale-110 transition-transform"></i>
+            <span>GitHub</span>
+            <i class="fa-solid fa-arrow-up-right-from-square text-xs opacity-60"></i>
+          </a>
+        </div>
+
+        <!-- STATS HIGHLIGHT -->
+        <div class="grid grid-cols-3 gap-4 pt-6 border-t border-slate-800">
+          <div>
+            <div class="text-2xl sm:text-3xl font-extrabold text-cyan-400 font-mono">8.38</div>
+            <div class="text-xs text-slate-400 mt-1">B.Tech CGPA</div>
+          </div>
+          <div>
+            <div class="text-2xl sm:text-3xl font-extrabold text-purple-400 font-mono">9.37</div>
+            <div class="text-xs text-slate-400 mt-1">Diploma CGPA</div>
+          </div>
+          <div>
+            <div class="text-2xl sm:text-3xl font-extrabold text-pink-400 font-mono">10.0</div>
+            <div class="text-xs text-slate-400 mt-1">SSC CGPA</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HERO AVATAR CARD -->
+      <div class="lg:col-span-5 flex justify-center">
+        <div class="glass p-8 w-full max-w-md relative gradient-border text-center space-y-6">
+          <div class="relative w-36 h-36 mx-auto rounded-full p-1 bg-gradient-to-tr from-cyan-500 via-purple-500 to-pink-500 shadow-xl">
+            <div class="w-full h-full rounded-full bg-slate-950 flex items-center justify-center overflow-hidden">
+              <span class="text-5xl font-black gradient-text">MA</span>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="text-xl font-bold text-slate-100">Mavurapu Aruna</h3>
+            <p class="text-xs text-cyan-400 font-mono mt-1">Computer Science & Engg (AI & ML)</p>
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-900/80 text-left text-xs text-slate-300 space-y-2 border border-slate-800">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-400"><i class="fa-solid fa-location-dot me-1.5 text-pink-400"></i> Location:</span>
+              <span class="font-semibold text-slate-200">Telangana, India</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-400"><i class="fa-solid fa-graduation-cap me-1.5 text-cyan-400"></i> University:</span>
+              <span class="font-semibold text-slate-200">BVRIT Narsapur</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-400"><i class="fa-solid fa-code me-1.5 text-purple-400"></i> Primary Focus:</span>
+              <span class="font-semibold text-slate-200">AI / ML / Data Science</span>
+            </div>
+          </div>
+
+          <div class="flex justify-center gap-3">
+            <span class="px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-mono">Python</span>
+            <span class="px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-400 text-xs font-mono">Deep Learning</span>
+            <span class="px-3 py-1 rounded-full bg-pink-500/10 border border-pink-500/30 text-pink-400 text-xs font-mono">Power BI</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TECHNICAL SKILLS SECTION -->
+    <section id="skills" class="space-y-8">
+      <div class="text-center space-y-2">
+        <span class="text-xs font-mono text-cyan-400 uppercase tracking-widest">Capabilities</span>
+        <h2 class="text-3xl font-extrabold">Technical Skill Matrix</h2>
+        <p class="text-slate-400 text-sm max-w-xl mx-auto">
+          Click any skill chip to filter matching projects that utilize that specific technology!
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- SKILL CATEGORY 1 -->
+        <div class="glass p-6 space-y-4">
+          <div class="flex items-center gap-3 text-cyan-400">
+            <i class="fa-solid fa-code text-xl"></i>
+            <h3 class="font-bold text-slate-100">Programming Languages</h3>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="toggleSkillFilter('Python')" class="skill-chip px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300">Python</button>
+            <button onclick="toggleSkillFilter('SQL')" class="skill-chip px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300">SQL</button>
+          </div>
+        </div>
+
+        <!-- SKILL CATEGORY 2 -->
+        <div class="glass p-6 space-y-4">
+          <div class="flex items-center gap-3 text-purple-400">
+            <i class="fa-solid fa-brain text-xl"></i>
+            <h3 class="font-bold text-slate-100">AI & Machine Learning</h3>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="toggleSkillFilter('Machine Learning')" class="skill-chip px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300">Machine Learning</button>
+            <button onclick="toggleSkillFilter('Deep Learning')" class="skill-chip px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300">Deep Learning</button>
+          </div>
+        </div>
+
+        <!-- SKILL CATEGORY 3 -->
+        <div class="glass p-6 space-y-4">
+          <div class="flex items-center gap-3 text-pink-400">
+            <i class="fa-solid fa-chart-line text-xl"></i>
+            <h3 class="font-bold text-slate-100">Data Analytics & Web</h3>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="toggleSkillFilter('Power BI')" class="skill-chip px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300">Power BI</button>
+            <button onclick="toggleSkillFilter('HTML')" class="skill-chip px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300">HTML & CSS</button>
+            <button onclick="toggleSkillFilter('MySQL')" class="skill-chip px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300">MySQL</button>
+          </div>
+        </div>
+
+        <!-- SKILL CATEGORY 4 -->
+        <div class="glass p-6 space-y-4 md:col-span-2 lg:col-span-3">
+          <div class="flex items-center gap-3 text-indigo-400">
+            <i class="fa-solid fa-cubes text-xl"></i>
+            <h3 class="font-bold text-slate-100">Core Computer Science Subjects</h3>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <span class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs font-medium text-slate-300">Data Structures & Algorithms</span>
+            <span class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs font-medium text-slate-300">Object-Oriented Programming (OOP)</span>
+            <span class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs font-medium text-slate-300">Database Management Systems (DBMS)</span>
+            <span class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs font-medium text-slate-300">Operating Systems</span>
+            <span class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs font-medium text-slate-300">Computer Networks</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURED PROJECTS SECTION -->
+    <section id="projects" class="space-y-8">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div class="space-y-2">
+          <span class="text-xs font-mono text-cyan-400 uppercase tracking-widest">Portfolio</span>
+          <h2 class="text-3xl font-extrabold">Featured Academic Projects</h2>
+        </div>
+
+        <!-- CATEGORY FILTER BUTTONS -->
+        <div class="flex flex-wrap gap-2 bg-slate-900/80 p-1.5 rounded-xl border border-slate-800 text-xs font-medium" id="category-filters">
+          <button onclick="filterCategory('all')" class="filter-btn px-4 py-2 rounded-lg bg-cyan-500 text-black font-semibold transition-all">All Projects</button>
+          <button onclick="filterCategory('ai')" class="filter-btn px-4 py-2 rounded-lg text-slate-400 hover:text-slate-200 transition-all">AI & ML</button>
+          <button onclick="filterCategory('analytics')" class="filter-btn px-4 py-2 rounded-lg text-slate-400 hover:text-slate-200 transition-all">Data Analytics</button>
+          <button onclick="filterCategory('web')" class="filter-btn px-4 py-2 rounded-lg text-slate-400 hover:text-slate-200 transition-all">Web & DB</button>
+        </div>
+      </div>
+
+      <!-- PROJECT GRID -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="projects-grid">
+
+        <!-- PROJECT 1 -->
+        <div class="project-card glass p-6 rounded-2xl flex flex-col justify-between space-y-5 cursor-pointer" data-category="analytics ai" data-tech="Python,Machine Learning,Power BI" onclick="openProjectModal(1)">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-1 rounded-md bg-purple-500/10 border border-purple-500/30 text-purple-400 text-xs font-mono">2025 - 2026</span>
+              <i class="fa-solid fa-chart-line text-cyan-400"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-100 group-hover:text-cyan-400 transition-colors">Sales Intelligence & Revenue Optimization</h3>
+            <p class="text-slate-400 text-xs leading-relaxed line-clamp-3">
+              Analyzed sales, profit, discount, and customer data to reveal revenue trends. Built predictive ML models and interactive Power BI dashboards.
+            </p>
+          </div>
+
+          <div class="space-y-4">
+            <div class="flex flex-wrap gap-1.5">
+              <span class="px-2 py-0.5 rounded bg-slate-900 text-[10px] text-slate-300 font-mono">Python</span>
+              <span class="px-2 py-0.5 rounded bg-slate-900 text-[10px] text-slate-300 font-mono">Machine Learning</span>
+              <span class="px-2 py-0.5 rounded bg-slate-900 text-[10px] text-slate-300 font-mono">Power BI</span>
+            </div>
+            <div class="text-xs text-cyan-400 font-semibold flex items-center gap-1">
+              View Case Study <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- PROJECT 2 -->
+        <div class="project-card glass p-6 rounded-2xl flex flex-col justify-between space-y-5 cursor-pointer" data-category="ai" data-tech="Python,Deep Learning" onclick="openProjectModal(2)">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-1 rounded-md bg-purple-500/10 border border-purple-500/30 text-purple-400 text-xs font-mono">2025</span>
+              <i class="fa-solid fa-image text-pink-400"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-100">Pixel Restoration Using Deep Learning</h3>
+            <p class="text-slate-400 text-xs leading-relaxed line-clamp-3">
+              Designed a deep learning system to restore degraded images, perform visual enhancement, and evaluate restoration quality.
+            </p>
+          </div>
+
+          <div class="space-y-4">
+            <div class="flex flex-wrap gap-1.5">
+              <span class="px-2 py-0.5 rounded bg-slate-900 text-[10px] text-slate-300 font-mono">Python</span>
+              <span class="px-2 py-0.5 rounded bg-slate-900 text-[10px] text-slate-300 font-mono">Deep Learning</span>
+            </div>
+            <div class="text-xs text-cyan-400 font-semibold flex items-center gap-1">
+              View Details <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- PROJECT 3 -->
+        <div class="project-card glass p-6 rounded-2xl flex flex-col justify-between space-y-5 cursor-pointer" data-category="web" data-tech="HTML,CSS,MySQL" onclick="openProjectModal(3)">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-1 rounded-md bg-purple-500/10 border border-purple-500/30 text-purple-400 text-xs font-mono">2024</span>
+              <i class="fa-solid fa-briefcase text-purple-400"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-100">Online Job Portal Platform</h3>
+            <p class="text-slate-400 text-xs leading-relaxed line-clamp-3">
+              Web-based job portal interface facilitating job searches and application management utilizing HTML/CSS and MySQL database backend.
+            </p>
+          </div>
+
+          <div class="space-y-4">
+            <div class="flex flex-wrap gap-1.5">
+              <span class="px-2 py-0.5 rounded bg-slate-900 text-[10px] text-slate-300 font-mono">HTML/CSS</span>
+              <span class="px-2 py-0.5 rounded bg-slate-900 text-[10px] text-slate-300 font-mono">MySQL</span>
+              <span class="px-2 py-0.5 rounded bg-slate-900 text-[10px] text-slate-300 font-mono">Database CRUD</span>
+            </div>
+            <div class="text-xs text-cyan-400 font-semibold flex items-center gap-1">
+              View Details <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- EDUCATION SECTION -->
+    <section id="education" class="space-y-8">
+      <div class="text-center space-y-2">
+        <span class="text-xs font-mono text-cyan-400 uppercase tracking-widest">Academic Timeline</span>
+        <h2 class="text-3xl font-extrabold">Education Background</h2>
+      </div>
+
+      <div class="relative border-l-2 border-slate-800 ml-4 md:ml-32 space-y-12">
+
+        <!-- EDU ITEM 1 -->
+        <div class="relative pl-8 group">
+          <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-cyan-500 border-4 border-slate-950 group-hover:scale-125 transition-transform"></div>
+          <div class="glass p-6 space-y-2">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+              <h3 class="text-lg font-bold text-slate-100">B.Tech in Computer Science & Engineering (AI & ML)</h3>
+              <span class="text-xs font-mono px-3 py-1 rounded-full bg-cyan-950 text-cyan-400 border border-cyan-800/50 w-fit">2024 - 2027</span>
+            </div>
+            <div class="text-cyan-400 text-sm font-medium">B. V. Raju Institute of Technology, Narsapur</div>
+            <div class="text-xs text-slate-400 flex items-center gap-2 pt-2">
+              <span class="px-2 py-1 rounded bg-slate-900 text-slate-200 font-mono">CGPA: 8.38</span>
+              <span>• Pursuing Specialization in Artificial Intelligence & Machine Learning</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- EDU ITEM 2 -->
+        <div class="relative pl-8 group">
+          <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-purple-500 border-4 border-slate-950 group-hover:scale-125 transition-transform"></div>
+          <div class="glass p-6 space-y-2">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+              <h3 class="text-lg font-bold text-slate-100">Diploma in Computer Science & Engineering</h3>
+              <span class="text-xs font-mono px-3 py-1 rounded-full bg-purple-950 text-purple-400 border border-purple-800/50 w-fit">2021 - 2024</span>
+            </div>
+            <div class="text-purple-400 text-sm font-medium">Government Polytechnic Boys, Nizamabad</div>
+            <div class="text-xs text-slate-400 flex items-center gap-2 pt-2">
+              <span class="px-2 py-1 rounded bg-slate-900 text-slate-200 font-mono">CGPA: 9.37</span>
+              <span>• Distinction Honors</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- EDU ITEM 3 -->
+        <div class="relative pl-8 group">
+          <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-pink-500 border-4 border-slate-950 group-hover:scale-125 transition-transform"></div>
+          <div class="glass p-6 space-y-2">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+              <h3 class="text-lg font-bold text-slate-100">Secondary School Certificate (SSC)</h3>
+              <span class="text-xs font-mono px-3 py-1 rounded-full bg-pink-950 text-pink-400 border border-pink-800/50 w-fit">2021</span>
+            </div>
+            <div class="text-pink-400 text-sm font-medium">Secondary High School, Kajjarla, Adilabad</div>
+            <div class="text-xs text-slate-400 flex items-center gap-2 pt-2">
+              <span class="px-2 py-1 rounded bg-slate-900 text-slate-200 font-mono">CGPA: 10.00</span>
+              <span>• Perfect Grade Point Record</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- CERTIFICATIONS & ACHIEVEMENTS SECTION -->
+    <section id="certifications" class="space-y-8">
+      <div class="text-center space-y-2">
+        <span class="text-xs font-mono text-cyan-400 uppercase tracking-widest">Validation</span>
+        <h2 class="text-3xl font-extrabold">Certifications & Achievements</h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <div class="glass p-6 flex gap-4 items-start">
+          <div class="p-3 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20 text-xl">
+            <i class="fa-solid fa-award"></i>
+          </div>
+          <div class="space-y-1">
+            <h4 class="font-bold text-slate-100 text-sm">Business Fundamentals for Entrepreneurs</h4>
+            <p class="text-xs text-cyan-400 font-mono">NPTEL Elite Certification (77%)</p>
+            <p class="text-[11px] text-slate-400">Core concepts of business leadership and venture growth.</p>
+          </div>
+        </div>
+
+        <div class="glass p-6 flex gap-4 items-start">
+          <div class="p-3 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-xl">
+            <i class="fa-solid fa-robot"></i>
+          </div>
+          <div class="space-y-1">
+            <h4 class="font-bold text-slate-100 text-sm">Oracle AI Agents</h4>
+            <p class="text-xs text-cyan-400 font-mono">Course Completion Certificate</p>
+            <p class="text-[11px] text-slate-400">Foundational architecture and execution of AI Agents.</p>
+          </div>
+        </div>
+
+        <div class="glass p-6 flex gap-4 items-start">
+          <div class="p-3 rounded-xl bg-pink-500/10 text-pink-400 border border-pink-500/20 text-xl">
+            <i class="fa-solid fa-puzzle-piece"></i>
+          </div>
+          <div class="space-y-1">
+            <h4 class="font-bold text-slate-100 text-sm">Problem Solving</h4>
+            <p class="text-xs text-cyan-400 font-mono">HackerRank Certified</p>
+            <p class="text-[11px] text-slate-400">Data structures, algorithmic efficiency, and problem solving.</p>
+          </div>
+        </div>
+
+        <div class="glass p-6 flex gap-4 items-start">
+          <div class="p-3 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xl">
+            <i class="fa-solid fa-brain"></i>
+          </div>
+          <div class="space-y-1">
+            <h4 class="font-bold text-slate-100 text-sm">Introduction to Artificial Intelligence</h4>
+            <p class="text-xs text-cyan-400 font-mono">Infosys Springboard</p>
+            <p class="text-[11px] text-slate-400">Core principles, algorithms, and AI frameworks.</p>
+          </div>
+        </div>
+
+        <div class="glass p-6 flex gap-4 items-start">
+          <div class="p-3 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-xl">
+            <i class="fa-solid fa-chart-pie"></i>
+          </div>
+          <div class="space-y-1">
+            <h4 class="font-bold text-slate-100 text-sm">Data Analytics</h4>
+            <p class="text-xs text-cyan-400 font-mono">Infosys Springboard</p>
+            <p class="text-[11px] text-slate-400">Data visualization, transformation, and analytical insights.</p>
+          </div>
+        </div>
+
+        <div class="glass p-6 flex gap-4 items-start">
+          <div class="p-3 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20 text-xl">
+            <i class="fa-solid fa-comments"></i>
+          </div>
+          <div class="space-y-1">
+            <h4 class="font-bold text-slate-100 text-sm">Soft Skills</h4>
+            <p class="text-xs text-cyan-400 font-mono">NPTEL Certification</p>
+            <p class="text-[11px] text-slate-400">Professional communication, teamwork, and leadership.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="mt-28 border-t border-slate-800/80 bg-slate-950/80 py-8 px-6 text-center text-xs text-slate-500 space-y-2">
+    <p>© 2026 Mavurapu Aruna. Designed with custom glassmorphism & dynamic JavaScript.</p>
+    <div class="flex justify-center gap-4 text-slate-400">
+      <a href="https://github.com/aruna2006" target="_blank" class="hover:text-cyan-400">GitHub</a>
+      <span>•</span>
+      <a href="https://linkedin.com/in/aruna-mavurapu" target="_blank" class="hover:text-cyan-400">LinkedIn</a>
+      <span>•</span>
+      <a href="mailto:arunamavurapu2033@gmail.com" class="hover:text-cyan-400">Email</a>
+    </div>
+  </footer>
+
+  <!-- PROJECT MODAL POPUP -->
+  <div id="project-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop opacity-0 pointer-events-none transition-opacity duration-300" onclick="closeProjectModal(event)">
+    <div class="glass max-w-2xl w-full p-8 rounded-2xl relative space-y-6 max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+      <button onclick="closeProjectModalDirect()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-white">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div id="modal-body">
+        <!-- Content injected dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    /* ====================================================
+       1. AMBIENT PARTICLES CANVAS
+       ==================================================== */
+    const canvas = document.getElementById('ambient-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class Particle {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 1.8 + 0.5;
+        this.speedX = (Math.random() - 0.5) * 0.4;
+        this.speedY = (Math.random() - 0.5) * 0.4;
+        this.color = Math.random() > 0.5 ? 'rgba(6, 182, 212, ' : 'rgba(139, 92, 246, ';
+        this.alpha = Math.random() * 0.4 + 0.1;
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+          this.reset();
+        }
+      }
+      draw() {
+        ctx.fillStyle = this.color + this.alpha + ')';
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    for (let i = 0; i < 60; i++) particles.push(new Particle());
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => { p.update(); p.draw(); });
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+
+    /* ====================================================
+       2. PROJECT FILTERING & SKILL HIGHLIGHTING
+       ==================================================== */
+    let activeSkill = null;
+
+    function toggleSkillFilter(skill) {
+      const cards = document.querySelectorAll('.project-card');
+      const buttons = document.querySelectorAll('.skill-chip');
+
+      if (activeSkill === skill) {
+        activeSkill = null;
+        buttons.forEach(b => b.classList.remove('active'));
+        cards.forEach(c => c.classList.remove('dimmed', 'highlighted'));
+      } else {
+        activeSkill = skill;
+        buttons.forEach(b => {
+          if (b.textContent.includes(skill)) b.classList.add('active');
+          else b.classList.remove('active');
+        });
+
+        cards.forEach(card => {
+          const techStack = card.getAttribute('data-tech') || '';
+          if (techStack.toLowerCase().includes(skill.toLowerCase())) {
+            card.classList.remove('dimmed');
+            card.classList.add('highlighted');
+          } else {
+            card.classList.add('dimmed');
+            card.classList.remove('highlighted');
+          }
+        });
+      }
+    }
+
+    function filterCategory(cat) {
+      const buttons = document.querySelectorAll('.filter-btn');
+      const cards = document.querySelectorAll('.project-card');
+
+      buttons.forEach(b => {
+        b.classList.remove('bg-cyan-500', 'text-black', 'font-semibold');
+        b.classList.add('text-slate-400');
+      });
+      event.target.classList.add('bg-cyan-500', 'text-black', 'font-semibold');
+      event.target.classList.remove('text-slate-400');
+
+      cards.forEach(card => {
+        card.classList.remove('dimmed', 'highlighted');
+        const categories = card.getAttribute('data-category') || '';
+        if (cat === 'all' || categories.includes(cat)) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    /* ====================================================
+       3. MODAL DISPLAY FOR PROJECTS
+       ==================================================== */
+    const projectsDetail = {
+      1: {
+        title: "Sales Intelligence and Revenue Optimization System",
+        date: "2025 - 2026",
+        tech: ["Python", "Machine Learning", "Power BI"],
+        points: [
+          "Analyzed comprehensive sales, profit margins, discount impacts, and customer purchasing patterns to extract critical business revenue insights.",
+          "Engineered machine learning models focused on early-stage sales anomaly detection and continuous revenue prediction.",
+          "Designed and published dynamic, interactive Power BI executive dashboards enabling real-time performance tracking and data-backed business strategy decisions."
+        ]
+      },
+      2: {
+        title: "Pixel Restoration Using Deep Learning",
+        date: "2025",
+        tech: ["Python", "Deep Learning"],
+        points: [
+          "Developed an end-to-end deep learning framework designed to reconstruct noise-degraded or blurred image inputs.",
+          "Architected deep learning network features for pixel-level visual restoration.",
+          "Integrated image preprocessing and computed quantitative metrics to evaluate output restoration quality."
+        ]
+      },
+      3: {
+        title: "Online Job Portal Platform",
+        date: "2024",
+        tech: ["HTML", "CSS", "MySQL"],
+        points: [
+          "Constructed a responsive user-facing interface allowing candidates to search open roles and submit applications efficiently.",
+          "Implemented robust relational database structures using MySQL to manage candidate profiles, employer postings, and application records.",
+          "Practiced structured CRUD operations and database management protocols to ensure data consistency."
+        ]
+      }
+    };
+
+    function openProjectModal(id) {
+      const p = projectsDetail[id];
+      if (!p) return;
+
+      const modalBody = document.getElementById('modal-body');
+      modalBody.innerHTML = `
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-mono px-3 py-1 rounded bg-cyan-950 text-cyan-400 border border-cyan-800">${p.date}</span>
+            <span class="text-xs text-slate-400">Academic Project</span>
+          </div>
+          <h2 class="text-2xl font-bold text-slate-100">${p.title}</h2>
+          
+          <div class="flex flex-wrap gap-2 pt-2">
+            ${p.tech.map(t => `<span class="px-2.5 py-1 rounded-md bg-slate-900 border border-slate-800 text-xs font-mono text-cyan-400">${t}</span>`).join('')}
+          </div>
+
+          <div class="border-t border-slate-800 pt-4 space-y-3">
+            <h4 class="text-sm font-semibold text-slate-200">Key Contributions & Architecture:</h4>
+            <ul class="space-y-2 text-xs text-slate-300 leading-relaxed">
+              ${p.points.map(pt => `<li class="flex items-start gap-2"><i class="fa-solid fa-check text-cyan-400 mt-1"></i><span>${pt}</span></li>`).join('')}
+            </ul>
+          </div>
+
+          <div class="pt-4 flex gap-3">
+            <a href="https://github.com/aruna2006" target="_blank" class="px-4 py-2 rounded-xl bg-cyan-500 text-black text-xs font-bold flex items-center gap-2 hover:bg-cyan-400 transition-colors">
+              <i class="fa-brands fa-github"></i> View GitHub Repo
+            </a>
+          </div>
+        </div>
+      `;
+
+      const modal = document.getElementById('project-modal');
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+    }
+
+    function closeProjectModal(e) {
+      if (e.target.id === 'project-modal') {
+        closeProjectModalDirect();
+      }
+    }
+
+    function closeProjectModalDirect() {
+      const modal = document.getElementById('project-modal');
+      modal.classList.add('opacity-0', 'pointer-events-none');
+    }
+  </script>
+</body>
+</html>
